@@ -7,6 +7,7 @@ Anonymizes DICOM files.  Removes all personal identifiers from the DICOM file an
 ## Packages
 - fo-dicom v4.0.0
 - fo-dicom.Desktop v4.0.0
+
 May not work with more recent versions of fo-dicom.
 
 ## Screenshot

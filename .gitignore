@@ -344,3 +344,5 @@ DCM/
 DICOM/
 *.DS_Store
 packages/
+
+._README.md
