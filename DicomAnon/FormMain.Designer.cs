@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.buttonSelectFolder = new System.Windows.Forms.Button();
             this.labelFolder = new System.Windows.Forms.Label();
@@ -39,24 +40,23 @@
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.richTextBoxOut = new System.Windows.Forms.RichTextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.textCropTop = new System.Windows.Forms.TextBox();
-            this.textCropLeft = new System.Windows.Forms.TextBox();
-            this.textCropRight = new System.Windows.Forms.TextBox();
-            this.textCropBottom = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.textCropBottom = new System.Windows.Forms.TextBox();
+            this.textCropRight = new System.Windows.Forms.TextBox();
+            this.textCropLeft = new System.Windows.Forms.TextBox();
+            this.textCropTop = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonSelectFolder
             // 
-            this.buttonSelectFolder.Location = new System.Drawing.Point(12, 37);
-            this.buttonSelectFolder.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.buttonSelectFolder.Location = new System.Drawing.Point(6, 19);
             this.buttonSelectFolder.Name = "buttonSelectFolder";
-            this.buttonSelectFolder.Size = new System.Drawing.Size(404, 44);
+            this.buttonSelectFolder.Size = new System.Drawing.Size(202, 23);
             this.buttonSelectFolder.TabIndex = 0;
             this.buttonSelectFolder.Text = "Select Folder...";
             this.buttonSelectFolder.UseVisualStyleBackColor = true;
@@ -65,10 +65,9 @@
             // labelFolder
             // 
             this.labelFolder.AutoSize = true;
-            this.labelFolder.Location = new System.Drawing.Point(12, 87);
-            this.labelFolder.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.labelFolder.Location = new System.Drawing.Point(6, 45);
             this.labelFolder.Name = "labelFolder";
-            this.labelFolder.Size = new System.Drawing.Size(223, 25);
+            this.labelFolder.Size = new System.Drawing.Size(111, 13);
             this.labelFolder.TabIndex = 1;
             this.labelFolder.Text = "Folder selected: None";
             // 
@@ -77,10 +76,9 @@
             this.checkBoxIncludeSubfolders.AutoSize = true;
             this.checkBoxIncludeSubfolders.Checked = true;
             this.checkBoxIncludeSubfolders.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxIncludeSubfolders.Location = new System.Drawing.Point(428, 44);
-            this.checkBoxIncludeSubfolders.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.checkBoxIncludeSubfolders.Location = new System.Drawing.Point(214, 23);
             this.checkBoxIncludeSubfolders.Name = "checkBoxIncludeSubfolders";
-            this.checkBoxIncludeSubfolders.Size = new System.Drawing.Size(222, 29);
+            this.checkBoxIncludeSubfolders.Size = new System.Drawing.Size(114, 17);
             this.checkBoxIncludeSubfolders.TabIndex = 2;
             this.checkBoxIncludeSubfolders.Text = "Include Subfolders";
             this.checkBoxIncludeSubfolders.UseVisualStyleBackColor = true;
@@ -93,11 +91,9 @@
             this.groupBox1.Controls.Add(this.checkBoxIncludeSubfolders);
             this.groupBox1.Controls.Add(this.buttonSelectFolder);
             this.groupBox1.Controls.Add(this.labelFolder);
-            this.groupBox1.Location = new System.Drawing.Point(24, 10);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.groupBox1.Location = new System.Drawing.Point(12, 5);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(6, 6, 6, 6);
-            this.groupBox1.Size = new System.Drawing.Size(670, 388);
+            this.groupBox1.Size = new System.Drawing.Size(335, 202);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "File Details";
@@ -105,30 +101,27 @@
             // labelWarnings
             // 
             this.labelWarnings.AutoSize = true;
-            this.labelWarnings.Location = new System.Drawing.Point(12, 171);
-            this.labelWarnings.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.labelWarnings.Location = new System.Drawing.Point(6, 89);
             this.labelWarnings.Name = "labelWarnings";
-            this.labelWarnings.Size = new System.Drawing.Size(109, 25);
+            this.labelWarnings.Size = new System.Drawing.Size(55, 13);
             this.labelWarnings.TabIndex = 4;
             this.labelWarnings.Text = "Warnings:";
             // 
             // labelImages
             // 
             this.labelImages.AutoSize = true;
-            this.labelImages.Location = new System.Drawing.Point(12, 129);
-            this.labelImages.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.labelImages.Location = new System.Drawing.Point(6, 67);
             this.labelImages.Name = "labelImages";
-            this.labelImages.Size = new System.Drawing.Size(278, 25);
+            this.labelImages.Size = new System.Drawing.Size(139, 13);
             this.labelImages.TabIndex = 3;
             this.labelImages.Text = "Images (*.dcm) found: None";
             // 
             // buttonAnon
             // 
             this.buttonAnon.Enabled = false;
-            this.buttonAnon.Location = new System.Drawing.Point(24, 435);
-            this.buttonAnon.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.buttonAnon.Location = new System.Drawing.Point(12, 226);
             this.buttonAnon.Name = "buttonAnon";
-            this.buttonAnon.Size = new System.Drawing.Size(960, 71);
+            this.buttonAnon.Size = new System.Drawing.Size(480, 37);
             this.buttonAnon.TabIndex = 4;
             this.buttonAnon.Text = "Anonymise";
             this.buttonAnon.UseVisualStyleBackColor = true;
@@ -136,20 +129,18 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(24, 517);
-            this.progressBar.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.progressBar.Location = new System.Drawing.Point(12, 269);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(960, 44);
+            this.progressBar.Size = new System.Drawing.Size(480, 23);
             this.progressBar.TabIndex = 5;
             // 
             // richTextBoxOut
             // 
-            this.richTextBoxOut.Location = new System.Drawing.Point(24, 575);
-            this.richTextBoxOut.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.richTextBoxOut.Location = new System.Drawing.Point(12, 299);
             this.richTextBoxOut.Name = "richTextBoxOut";
             this.richTextBoxOut.ReadOnly = true;
             this.richTextBoxOut.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.richTextBoxOut.Size = new System.Drawing.Size(954, 264);
+            this.richTextBoxOut.Size = new System.Drawing.Size(479, 139);
             this.richTextBoxOut.TabIndex = 6;
             this.richTextBoxOut.Text = "";
             // 
@@ -163,92 +154,102 @@
             this.groupBox2.Controls.Add(this.textCropRight);
             this.groupBox2.Controls.Add(this.textCropLeft);
             this.groupBox2.Controls.Add(this.textCropTop);
-            this.groupBox2.Location = new System.Drawing.Point(704, 13);
+            this.groupBox2.Location = new System.Drawing.Point(352, 7);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(290, 385);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox2.Size = new System.Drawing.Size(145, 200);
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Crop";
             // 
-            // textCropTop
+            // label4
             // 
-            this.textCropTop.Location = new System.Drawing.Point(94, 83);
-            this.textCropTop.Name = "textCropTop";
-            this.textCropTop.Size = new System.Drawing.Size(100, 31);
-            this.textCropTop.TabIndex = 0;
-            this.textCropTop.Text = "0";
-            // 
-            // textCropLeft
-            // 
-            this.textCropLeft.Location = new System.Drawing.Point(22, 162);
-            this.textCropLeft.Name = "textCropLeft";
-            this.textCropLeft.Size = new System.Drawing.Size(100, 31);
-            this.textCropLeft.TabIndex = 1;
-            this.textCropLeft.Text = "0";
-            // 
-            // textCropRight
-            // 
-            this.textCropRight.Location = new System.Drawing.Point(162, 162);
-            this.textCropRight.Name = "textCropRight";
-            this.textCropRight.Size = new System.Drawing.Size(100, 31);
-            this.textCropRight.TabIndex = 2;
-            this.textCropRight.Text = "0";
-            // 
-            // textCropBottom
-            // 
-            this.textCropBottom.Location = new System.Drawing.Point(94, 246);
-            this.textCropBottom.Name = "textCropBottom";
-            this.textCropBottom.Size = new System.Drawing.Size(100, 31);
-            this.textCropBottom.TabIndex = 3;
-            this.textCropBottom.Text = "0";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(94, 52);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(92, 25);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "Top (px)";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(22, 126);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(91, 25);
-            this.label2.TabIndex = 5;
-            this.label2.Text = "Left (px)";
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(47, 112);
+            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(60, 13);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "Bottom (px)";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(162, 126);
+            this.label3.Location = new System.Drawing.Point(81, 66);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(105, 25);
+            this.label3.Size = new System.Drawing.Size(52, 13);
             this.label3.TabIndex = 6;
             this.label3.Text = "Right (px)";
             // 
-            // label4
+            // label2
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(94, 215);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(122, 25);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "Bottom (px)";
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(11, 66);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(45, 13);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Left (px)";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(47, 27);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(46, 13);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Top (px)";
+            // 
+            // textCropBottom
+            // 
+            this.textCropBottom.Location = new System.Drawing.Point(47, 128);
+            this.textCropBottom.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textCropBottom.Name = "textCropBottom";
+            this.textCropBottom.Size = new System.Drawing.Size(52, 20);
+            this.textCropBottom.TabIndex = 3;
+            this.textCropBottom.Text = "0";
+            // 
+            // textCropRight
+            // 
+            this.textCropRight.Location = new System.Drawing.Point(81, 84);
+            this.textCropRight.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textCropRight.Name = "textCropRight";
+            this.textCropRight.Size = new System.Drawing.Size(52, 20);
+            this.textCropRight.TabIndex = 2;
+            this.textCropRight.Text = "0";
+            // 
+            // textCropLeft
+            // 
+            this.textCropLeft.Location = new System.Drawing.Point(11, 84);
+            this.textCropLeft.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textCropLeft.Name = "textCropLeft";
+            this.textCropLeft.Size = new System.Drawing.Size(52, 20);
+            this.textCropLeft.TabIndex = 1;
+            this.textCropLeft.Text = "0";
+            // 
+            // textCropTop
+            // 
+            this.textCropTop.Location = new System.Drawing.Point(47, 43);
+            this.textCropTop.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textCropTop.Name = "textCropTop";
+            this.textCropTop.Size = new System.Drawing.Size(52, 20);
+            this.textCropTop.TabIndex = 0;
+            this.textCropTop.Text = "0";
             // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1006, 865);
+            this.ClientSize = new System.Drawing.Size(503, 450);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.richTextBoxOut);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.buttonAnon);
             this.Controls.Add(this.groupBox1);
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormMain";
             this.Text = "Dicom Anonymiser";
             this.groupBox1.ResumeLayout(false);
