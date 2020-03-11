@@ -12,3 +12,7 @@ May not work with more recent versions of fo-dicom.
 
 ## Screenshot
 ![Screenshot of DicomAnon interface](DicomAnon-Screenshot.png)
+
+## Installer
+I recommend building the app yourself, but I've included builds for Windows 10 below.
+- [Version 1.0.0](http://www.soapysoftware.com/DicomAnon-1.0.0/DicomAnon.Setup.msi) MD5: 9a970bbdb51397378db149d2de10c8dc
