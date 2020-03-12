@@ -28,25 +28,19 @@
         "Entry"
         {
         "MsmKey" = "8:_DAD4DACE6FC2DFBC97B9BECD264538C7"
-        "OwnerKey" = "8:_D02BE1BB9D9E43608CD1340902178BF5"
+        "OwnerKey" = "8:_65389CBE0604DE05F2A835E5BB5252B3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_DAD4DACE6FC2DFBC97B9BECD264538C7"
-        "OwnerKey" = "8:_65389CBE0604DE05F2A835E5BB5252B3"
+        "OwnerKey" = "8:_D02BE1BB9D9E43608CD1340902178BF5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_DE7C379A8916B061C33A1561F0B0FA7B"
         "OwnerKey" = "8:_D02BE1BB9D9E43608CD1340902178BF5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_65389CBE0604DE05F2A835E5BB5252B3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -59,6 +53,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_DE7C379A8916B061C33A1561F0B0FA7B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_65389CBE0604DE05F2A835E5BB5252B3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -117,6 +117,22 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.6.1"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.6.1 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.6.1"
+                    }
+                }
+            }
         }
     }
     "Deployable"
@@ -254,22 +270,11 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
-                    "{9EF0B969-E518-4E46-987F-47570745A589}:_50476ACB01EB4D2A9320BC957089E91F"
-                    {
-                    "Name" = "8:UBC"
-                    "AlwaysCreate" = "11:FALSE"
-                    "Condition" = "8:"
-                    "Transitive" = "11:FALSE"
-                    "Property" = "8:_EEE82EDBC7E24718A0C04DA12CA41FB0"
-                        "Folders"
-                        {
-                        }
-                    }
                 }
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_8F2C10C377344B9DB758ACD98D9B8D6D"
             {
-            "DefaultLocation" = "8:[ProgramFiles64Folder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFiles64Folder]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -307,15 +312,15 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:DicomAnon"
         "ProductCode" = "8:{CBA8A5B7-7728-4193-9724-826A4B23AD9A}"
-        "PackageCode" = "8:{E126D501-FDE6-4041-BFAE-B0422866D2D6}"
+        "PackageCode" = "8:{95A7B4D7-512F-45D7-9A5A-6FAE3873E63B}"
         "UpgradeCode" = "8:{E0978D6F-19AA-4BED-A782-F598AA8BC905}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
-        "DetectNewerInstalledVersion" = "11:TRUE"
+        "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.0"
-        "Manufacturer" = "8:University of British Columbia"
+        "Manufacturer" = "8:Soapy Software"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
         "Title" = "8:DicomAnon"
@@ -450,7 +455,7 @@
             "IconIndex" = "3:32512"
             "Transitive" = "11:FALSE"
             "Target" = "8:_D02BE1BB9D9E43608CD1340902178BF5"
-            "Folder" = "8:_50476ACB01EB4D2A9320BC957089E91F"
+            "Folder" = "8:_08793E44920E4ED690CF7E52D49877E9"
             "WorkingFolder" = "8:_8F2C10C377344B9DB758ACD98D9B8D6D"
             "Icon" = "8:_D02BE1BB9D9E43608CD1340902178BF5"
             "Feature" = "8:"
@@ -856,7 +861,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D02BE1BB9D9E43608CD1340902178BF5"
             {
-            "SourcePath" = "8:..\\DicomAnon\\obj\\x64\\Debug\\DicomAnon.exe"
+            "SourcePath" = "8:..\\DicomAnon\\obj\\x64\\Release\\DicomAnon.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8F2C10C377344B9DB758ACD98D9B8D6D"
