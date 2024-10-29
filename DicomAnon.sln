@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29009.5
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomAnon", "DicomAnon\DicomAnon.csproj", "{1D1D0102-0ED8-4399-9E63-878E4F9F9CE6}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "DicomAnon.Setup", "DicomAnon.Setup\DicomAnon.Setup.vdproj", "{601BA314-3BCD-43D2-9940-6AA2FAE4CA14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicomAnon2", "DicomAnon2\DicomAnon2.csproj", "{5A6E5648-1BED-46B2-9EB1-2080776B0EFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,14 @@ Global
 		{601BA314-3BCD-43D2-9940-6AA2FAE4CA14}.Release|Any CPU.ActiveCfg = Release
 		{601BA314-3BCD-43D2-9940-6AA2FAE4CA14}.Release|x64.ActiveCfg = Release
 		{601BA314-3BCD-43D2-9940-6AA2FAE4CA14}.Release|x64.Build.0 = Release
+		{5A6E5648-1BED-46B2-9EB1-2080776B0EFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6E5648-1BED-46B2-9EB1-2080776B0EFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A6E5648-1BED-46B2-9EB1-2080776B0EFA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5A6E5648-1BED-46B2-9EB1-2080776B0EFA}.Debug|x64.Build.0 = Debug|Any CPU
+		{5A6E5648-1BED-46B2-9EB1-2080776B0EFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A6E5648-1BED-46B2-9EB1-2080776B0EFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A6E5648-1BED-46B2-9EB1-2080776B0EFA}.Release|x64.ActiveCfg = Release|Any CPU
+		{5A6E5648-1BED-46B2-9EB1-2080776B0EFA}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

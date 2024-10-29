@@ -1,33 +1,34 @@
-﻿using System;
+﻿using FellowOakDicom.Imaging.Render;
+using FellowOakDicom.Imaging.Codec;
+using FellowOakDicom.Imaging;
+using FellowOakDicom;
+using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dicom;
-using Dicom.Imaging;
-using Dicom.Imaging.Render;
-using System.IO;
-using Microsoft.Win32;
-using System.Drawing.Imaging;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Microsoft.Extensions.Primitives;
 
-namespace DicomAnon
+
+namespace DicomAnon2
 {
-    public partial class FormMain : Form
+    public partial class Form1 : Form
     {
         private string _strFolder;
         private List<string> _lFiles;
-        private BackgroundWorker backgroundWorker1;
-        private BackgroundWorker backgroundWorker2;
-        private BackgroundWorker backgroundWorker3;
+        private BackgroundWorker backgroundWorkerAnon;
+        private BackgroundWorker backgroundWorkerGetData;
+        private BackgroundWorker backgroundWorkerMakePNGs;
 
-        public FormMain()
+        public Form1()
         {
             InitializeComponent();
 
@@ -47,52 +48,138 @@ namespace DicomAnon
                 }
             }
 
-            backgroundWorker1 = new BackgroundWorker();
-            backgroundWorker1.WorkerReportsProgress = true;
-            backgroundWorker1.WorkerSupportsCancellation = true;
+            backgroundWorkerAnon = new BackgroundWorker();
+            backgroundWorkerAnon.WorkerReportsProgress = true;
+            backgroundWorkerAnon.WorkerSupportsCancellation = true;
 
-            backgroundWorker2 = new BackgroundWorker();
-            backgroundWorker2.WorkerReportsProgress = true;
-            backgroundWorker2.WorkerSupportsCancellation = true;
+            backgroundWorkerGetData = new BackgroundWorker();
+            backgroundWorkerGetData.WorkerReportsProgress = true;
+            backgroundWorkerGetData.WorkerSupportsCancellation = true;
 
-            backgroundWorker3 = new BackgroundWorker();
-            backgroundWorker3.WorkerReportsProgress = true;
-            backgroundWorker3.WorkerSupportsCancellation = true;
+            backgroundWorkerMakePNGs = new BackgroundWorker();
+            backgroundWorkerMakePNGs.WorkerReportsProgress = true;
+            backgroundWorkerMakePNGs.WorkerSupportsCancellation = true;
+
+            new DicomSetupBuilder()
+  .RegisterServices(s => s.AddFellowOakDicom().AddTranscoderManager<FellowOakDicom.Imaging.NativeCodec.NativeTranscoderManager>())
+  .SkipValidation()
+  .Build();
 
             InitializeBackgroundWorkers();
         }
 
         private void InitializeBackgroundWorkers()
         {
-            backgroundWorker1.DoWork +=
-                new DoWorkEventHandler(backgroundWorker1_DoWork);
-            backgroundWorker1.RunWorkerCompleted +=
-                new RunWorkerCompletedEventHandler(
-            backgroundWorker1_RunWorkerCompleted);
-            backgroundWorker1.ProgressChanged +=
-                new ProgressChangedEventHandler(
-            backgroundWorker1_ProgressChanged);
+            backgroundWorkerAnon.DoWork += new DoWorkEventHandler(backgroundWorkerAnon_DoWork);
+            backgroundWorkerAnon.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_RunWorkerCompleted);
+            backgroundWorkerAnon.ProgressChanged += new ProgressChangedEventHandler(backgroundWorker_ProgressChanged);
 
-            backgroundWorker2.DoWork +=
-    new DoWorkEventHandler(backgroundWorker2_DoWork);
-            backgroundWorker2.RunWorkerCompleted +=
-                new RunWorkerCompletedEventHandler(
-            backgroundWorker1_RunWorkerCompleted);
-            backgroundWorker2.ProgressChanged +=
-                new ProgressChangedEventHandler(
-            backgroundWorker1_ProgressChanged);
+            backgroundWorkerGetData.DoWork += new DoWorkEventHandler(backgroundWorkerGetData_DoWork);
+            backgroundWorkerGetData.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_RunWorkerCompleted);
+            backgroundWorkerGetData.ProgressChanged += new ProgressChangedEventHandler(backgroundWorker_ProgressChanged);
 
-            backgroundWorker3.DoWork +=
-    new DoWorkEventHandler(backgroundWorker3_DoWork);
-            backgroundWorker3.RunWorkerCompleted +=
-                new RunWorkerCompletedEventHandler(
-            backgroundWorker1_RunWorkerCompleted);
-            backgroundWorker3.ProgressChanged +=
-                new ProgressChangedEventHandler(
-            backgroundWorker1_ProgressChanged);
+            backgroundWorkerMakePNGs.DoWork += new DoWorkEventHandler(backgroundWorkerMakePNGs_DoWork);
+            backgroundWorkerMakePNGs.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker_RunWorkerCompleted);
+            backgroundWorkerMakePNGs.ProgressChanged += new ProgressChangedEventHandler(backgroundWorker_ProgressChanged);
+
         }
 
-        private void ButtonSelectFolder_Click(object sender, EventArgs e)
+        private void buttonAnon_Click(object sender, EventArgs e)
+        {
+            if (buttonAnon.Enabled == false)
+            {
+                return;
+            }
+
+            buttonAnon.Enabled = false;
+            buttonGetData.Enabled = false;
+            buttonMakePNGs.Enabled = false;
+
+            richTextBoxOut.Clear();
+            richTextBoxOut.AppendText("Beginning anonymisation.");
+            progressBar.Minimum = 0;
+            progressBar.Maximum = 100;
+            progressBar.Value = 0;
+
+            int nTop, nRight, nBottom, nLeft;
+            if (!int.TryParse(textCropTop.Text, out nTop))
+            {
+                nTop = 0;
+            }
+            if (!int.TryParse(textCropRight.Text, out nRight))
+            {
+                nRight = 0;
+            }
+            if (!int.TryParse(textCropBottom.Text, out nBottom))
+            {
+                nBottom = 0;
+            }
+            if (!int.TryParse(textCropLeft.Text, out nLeft))
+            {
+                nLeft = 0;
+            }
+
+            nTop = Math.Max(0, nTop);
+            nRight = Math.Max(0, nRight);
+            nBottom = Math.Max(0, nBottom);
+            nLeft = Math.Max(0, nLeft);
+
+            Tuple<int, int, int, int> lCrop = new Tuple<int, int, int, int>(nTop, nRight, nBottom, nLeft);
+
+            if (Directory.Exists(_strFolder + "\\Anonymised"))
+            {
+                richTextBoxOut.AppendText("\nCleaning up existing subfolder 'Anonymised'.");
+                DirectoryInfo di = new DirectoryInfo(_strFolder + "\\Anonymised");
+                di.Delete(true);
+
+            }
+
+            Directory.CreateDirectory(_strFolder + "\\Anonymised");
+            richTextBoxOut.AppendText("\nSubfolder 'Anonymised' successfully created.");
+
+            Directory.CreateDirectory(_strFolder + "\\Anonymised\\TIF");
+            Directory.CreateDirectory(_strFolder + "\\Anonymised\\PNG");
+            Directory.CreateDirectory(_strFolder + "\\Anonymised\\DICOM");
+
+            Tuple<string, Tuple<int, int, int, int>, List<string>, bool> param = new Tuple<string, Tuple<int, int, int, int>, List<string>, bool>(_strFolder, lCrop, _lFiles, chkKeepFilenames.Checked);
+
+            // Start the asynchronous operation.
+            backgroundWorkerAnon.RunWorkerAsync(param);
+        }
+
+        private void buttonGetData_Click(object sender, EventArgs e)
+        {
+            if (buttonGetData.Enabled == false)
+            {
+                return;
+            }
+
+            buttonAnon.Enabled = false;
+            buttonGetData.Enabled = false;
+            buttonMakePNGs.Enabled = false;
+
+            richTextBoxOut.Clear();
+            richTextBoxOut.AppendText("Getting DICOM data.");
+            progressBar.Minimum = 0;
+            progressBar.Maximum = 100;
+            progressBar.Value = 0;
+
+            if (!Directory.Exists(_strFolder + "\\Database"))
+            {
+                Directory.CreateDirectory(_strFolder + "\\Database");
+            }
+
+
+            richTextBoxOut.AppendText("\nSubfolder 'Database' successfully created.");
+
+            Tuple<string, List<string>> param = new Tuple<string, List<string>>(_strFolder, _lFiles);
+
+            // Start the asynchronous operation.
+            backgroundWorkerGetData.RunWorkerAsync(param);
+
+        }
+
+        private void buttonSelectFolder_Click(object sender, EventArgs e)
         {
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
@@ -109,7 +196,7 @@ namespace DicomAnon
             }
         }
 
-        private void CheckBoxIncludeSubfolders_CheckedChanged(object sender, EventArgs e)
+        private void checkBoxIncludeSubfolders_CheckedChanged(object sender, EventArgs e)
         {
             if (_strFolder != null)
             {
@@ -199,83 +286,18 @@ namespace DicomAnon
             {
                 labelWarnings.Text += "\n* No DICOM (*.dcm) files were found.";
                 buttonAnon.Enabled = false;
-                button1.Enabled = false;
-                button2.Enabled = false;
+                buttonGetData.Enabled = false;
+                buttonMakePNGs.Enabled = false;
             }
             else
             {
                 buttonAnon.Enabled = true;
-                button1.Enabled = true;
-                button2.Enabled = true;
+                buttonGetData.Enabled = true;
+                buttonMakePNGs.Enabled = true;
             }
         }
 
-        private void ButtonAnon_Click(object sender, EventArgs e)
-        {
-            if (buttonAnon.Enabled == false)
-            {
-                return;
-            }
-
-            buttonAnon.Enabled = false;
-            button1.Enabled = false;
-            button2.Enabled = false;
-
-            richTextBoxOut.Clear();
-            richTextBoxOut.AppendText("Beginning anonymisation.");
-            progressBar.Minimum = 0;
-            progressBar.Maximum = 100;
-            progressBar.Value = 0;
-
-            int nTop, nRight, nBottom, nLeft;
-            if (!int.TryParse(textCropTop.Text, out nTop))
-            {
-                nTop = 0;
-            }
-            if (!int.TryParse(textCropRight.Text, out nRight))
-            {
-                nRight = 0;
-            }
-            if (!int.TryParse(textCropBottom.Text, out nBottom))
-            {
-                nBottom = 0;
-            }
-            if (!int.TryParse(textCropLeft.Text, out nLeft))
-            {
-                nLeft = 0;
-            }
-
-            nTop = Math.Max(0, nTop);
-            nRight = Math.Max(0, nRight);
-            nBottom = Math.Max(0, nBottom);
-            nLeft = Math.Max(0, nLeft);
-
-            Tuple<int, int, int, int> lCrop = new Tuple<int, int, int, int>(nTop, nRight, nBottom, nLeft);
-
-            if (Directory.Exists(_strFolder + "\\Anonymised"))
-            {
-                richTextBoxOut.AppendText("\nCleaning up existing subfolder 'Anonymised'.");
-                DirectoryInfo di = new DirectoryInfo(_strFolder + "\\Anonymised");
-                di.Delete(true);
-
-            }
-
-            Directory.CreateDirectory(_strFolder + "\\Anonymised");
-            richTextBoxOut.AppendText("\nSubfolder 'Anonymised' successfully created.");
-
-            Directory.CreateDirectory(_strFolder + "\\Anonymised\\TIF");
-            Directory.CreateDirectory(_strFolder + "\\Anonymised\\PNG");
-            Directory.CreateDirectory(_strFolder + "\\Anonymised\\DICOM");
-
-            Tuple<string, Tuple<int, int, int, int>, List<string>, bool> param = new Tuple<string, Tuple<int, int, int, int>, List<string>, bool>(_strFolder, lCrop, _lFiles, chkKeepFilenames.Checked);
-
-            // Start the asynchronous operation.
-            backgroundWorker1.RunWorkerAsync(param);
-        }
-
-        // This event handler is where the actual,
-        // potentially time-consuming work is done.
-        private void backgroundWorker1_DoWork(object sender,
+        private void backgroundWorkerAnon_DoWork(object sender,
             DoWorkEventArgs e)
         {
             // Get the BackgroundWorker that raised this event.
@@ -285,12 +307,12 @@ namespace DicomAnon
             // to the Result property of the DoWorkEventArgs
             // object. This is will be available to the 
             // RunWorkerCompleted eventhandler.
-            e.Result = WorkerFunc((Tuple<string, Tuple<int, int, int, int>, List<string>, bool>)e.Argument, worker, e);
+            e.Result = AnonymizeDCMs((Tuple<string, Tuple<int, int, int, int>, List<string>, bool>)e.Argument, worker, e);
         }
 
         // This event handler deals with the results of the
         // background operation.
-        private void backgroundWorker1_RunWorkerCompleted(
+        private void backgroundWorker_RunWorkerCompleted(
             object sender, RunWorkerCompletedEventArgs e)
         {
             // First, handle the case where an exception was thrown.
@@ -310,19 +332,19 @@ namespace DicomAnon
             }
 
             buttonAnon.Enabled = true;
-            button1.Enabled = true;
-            button2.Enabled = true;
+            buttonGetData.Enabled = true;
+            buttonMakePNGs.Enabled = true;
             progressBar.Value = 0;
         }
 
         // This event handler updates the progress bar.
-        private void backgroundWorker1_ProgressChanged(object sender,
+        private void backgroundWorker_ProgressChanged(object sender,
             ProgressChangedEventArgs e)
         {
             progressBar.Value = e.ProgressPercentage;
         }
 
-        string WorkerFunc(Tuple<string, Tuple<int, int, int, int>, List<string>, bool> param, BackgroundWorker worker, DoWorkEventArgs e)
+        string AnonymizeDCMs(Tuple<string, Tuple<int, int, int, int>, List<string>, bool> param, BackgroundWorker worker, DoWorkEventArgs e)
         {
             List<Tuple<string, string, string>> lFailed = new List<Tuple<string, string, string>>();
             string strPath = param.Item1;
@@ -369,7 +391,7 @@ namespace DicomAnon
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                     continue;
                 }
-                
+
                 if (file == null)
                 {
                     // Transmit message back with worker?
@@ -382,7 +404,7 @@ namespace DicomAnon
 
                 try
                 {
-                    strOriginalPatientID = file.Dataset.GetValue<string>(DicomTag.PatientID, 0);
+                    GetDicomTagString(ref file, DicomTag.PatientID, out strOriginalPatientID);
                 }
                 catch (Exception ex)
                 {
@@ -392,7 +414,7 @@ namespace DicomAnon
                 // A batch of already semi-anonymized files were sent that were missing critical DICOM fields.
                 string strSOPInstanceUID;
                 GetDicomTagString(ref file, DicomTag.SOPInstanceUID, out strSOPInstanceUID);
-                if(strSOPInstanceUID.Length == 0)
+                if (strSOPInstanceUID.Length == 0)
                 {
                     file.Dataset.Add(DicomTag.SOPInstanceUID, DicomUID.Generate());
                 }
@@ -413,7 +435,7 @@ namespace DicomAnon
                 }
 
 
-                DicomTag[] tagsToRemove = { DicomTag.StudyDate, DicomTag.StudyTime, DicomTag.PatientID, DicomTag.StudyID, DicomTag.StudyInstanceUID };
+                DicomTag[] tagsToRemove = { DicomTag.StudyDate, DicomTag.StudyTime, DicomTag.PatientID, DicomTag.StudyID, DicomTag.StudyInstanceUID, DicomTag.PlateID };
 
                 foreach (DicomTag d in tagsToRemove)
                 {
@@ -442,208 +464,231 @@ namespace DicomAnon
                 }
                 else
                 {
-                    strStudyID = fileAnon.Dataset.GetValue<string>(DicomTag.StudyInstanceUID, 0);
+                    GetDicomTagString(ref fileAnon, DicomTag.StudyInstanceUID, out strStudyID);
                 }
+
+                DicomPixelData header = null;
+                IPixelData pixelData = null;
+                bool bRecode = false;
+                bool bHasPixels = false;
 
                 try
                 {
+                    header = DicomPixelData.Create(fileAnon.Dataset);
+                    pixelData = PixelDataFactory.Create(header, header.NumberOfFrames - 1);
+                    bHasPixels = true;
+                }
+                catch
+                {
+                    bRecode = true;
+                }
 
-                    var header = DicomPixelData.Create(fileAnon.Dataset);
-                    var pixelData = PixelDataFactory.Create(header, header.NumberOfFrames - 1);
-
-                    int rows = header.Height;
-                    int columns = header.Width;
-
-                    Array a;
-                    byte[] result;
-
-                    bool b16bit = false;
-
-                    if (pixelData is GrayscalePixelDataU16)
+                if(bRecode)
+                {
+                    try
                     {
-                        ushort[] pixels = ((GrayscalePixelDataU16)pixelData).Data;
-                        a = pixels;
-                        b16bit = true;
+                        // Recode DCM
+                        var transcoder = new DicomTranscoder(fileAnon.Dataset.InternalTransferSyntax, DicomTransferSyntax.ImplicitVRLittleEndian);
+                        var newFile = transcoder.Transcode(fileAnon);
+                        fileAnon = newFile;
+
+                        header = DicomPixelData.Create(fileAnon.Dataset);
+                        pixelData = PixelDataFactory.Create(header, header.NumberOfFrames - 1);
+                        bHasPixels = true;
                     }
-                    else if (pixelData is GrayscalePixelDataS16)
+                    catch(Exception ex)
                     {
-                        short[] pixels = ((GrayscalePixelDataS16)pixelData).Data;
-                        a = pixels;
-                        b16bit = true;
+                        System.Diagnostics.Debug.WriteLine("Failed to recode bad image");
+                        System.Diagnostics.Debug.WriteLine(fileAnon.Dataset.InternalTransferSyntax.ToString());
+                        System.Diagnostics.Debug.WriteLine(ex.ToString());
                     }
-                    else if (pixelData is GrayscalePixelDataU32)
-                    {
-                        uint[] pixels = ((GrayscalePixelDataU32)pixelData).Data;
-                        a = pixels;
-                    }
-                    else if (pixelData is GrayscalePixelDataS32)
-                    {
-                        int[] pixels = ((GrayscalePixelDataS32)pixelData).Data;
-                        a = pixels;
-                    }
-                    else if (pixelData is GrayscalePixelDataU8)
-                    {
-                        byte[] pixels = ((GrayscalePixelDataU8)pixelData).Data;
-                        a = pixels;
-                    }
-                    else
-                    {
-                        throw new Exception("DICOM image format not supported (this program only supports greyscale).");
-                    }
+                }
 
-                    // Can't seem to figure out the byte formatting between 16-bit greyscale DCM versus C#'s 16-bit greyscale.
-                    //b16bit = false;
 
-                    if (bCrop)
+                if(bHasPixels)
+                {
+                    try
                     {
 
-                        // Top
-                        if (lCrop.Item1 > 0)
+                        int rows = header.Height;
+                        int columns = header.Width;
+
+                        Array a;
+                        byte[] result;
+
+                        bool b16bit = false;
+
+                        if (pixelData is GrayscalePixelDataU16)
                         {
-                            Array cropped = Array.CreateInstance(a.GetValue(0).GetType(), a.Length - (columns * lCrop.Item1));
-                            Array.Copy(a, columns * lCrop.Item1, cropped, 0, cropped.Length);
-                            a = cropped;
-                            rows -= lCrop.Item1;
+                            ushort[] pixels = ((GrayscalePixelDataU16)pixelData).Data;
+                            a = pixels;
+                            b16bit = true;
+                        }
+                        else if (pixelData is GrayscalePixelDataS16)
+                        {
+                            short[] pixels = ((GrayscalePixelDataS16)pixelData).Data;
+                            a = pixels;
+                            b16bit = true;
+                        }
+                        else if (pixelData is GrayscalePixelDataU32)
+                        {
+                            uint[] pixels = ((GrayscalePixelDataU32)pixelData).Data;
+                            a = pixels;
+                        }
+                        else if (pixelData is GrayscalePixelDataS32)
+                        {
+                            int[] pixels = ((GrayscalePixelDataS32)pixelData).Data;
+                            a = pixels;
+                        }
+                        else if (pixelData is GrayscalePixelDataU8)
+                        {
+                            byte[] pixels = ((GrayscalePixelDataU8)pixelData).Data;
+                            a = pixels;
+                        }
+                        else
+                        {
+                            throw new Exception("DICOM image format not supported (this program only supports greyscale).");
                         }
 
-                        // Right
-                        if (lCrop.Item2 > 0)
-                        {
-                            Array cropped = Array.CreateInstance(a.GetValue(0).GetType(), a.Length - (rows * lCrop.Item2));
+                        // Can't seem to figure out the byte formatting between 16-bit greyscale DCM versus C#'s 16-bit greyscale.
+                        //b16bit = false;
 
-                            for (k = 0; k < rows; k++)
+                        if (bCrop)
+                        {
+
+                            // Top
+                            if (lCrop.Item1 > 0)
                             {
-                                Array.Copy(a, k * columns, cropped, k * (columns - lCrop.Item2), columns - lCrop.Item2);
+                                Array cropped = Array.CreateInstance(a.GetValue(0).GetType(), a.Length - (columns * lCrop.Item1));
+                                Array.Copy(a, columns * lCrop.Item1, cropped, 0, cropped.Length);
+                                a = cropped;
+                                rows -= lCrop.Item1;
                             }
 
-                            a = cropped;
-                            columns -= lCrop.Item2;
-                        }
-
-                        // Bottom
-                        if (lCrop.Item3 > 0)
-                        {
-                            Array cropped = Array.CreateInstance(a.GetValue(0).GetType(), a.Length - (columns * lCrop.Item3));
-                            Array.Copy(a, 0, cropped, 0, cropped.Length);
-                            a = cropped;
-                            rows -= lCrop.Item3;
-                        }
-
-                        // Left
-                        if (lCrop.Item4 > 0)
-                        {
-                            Array cropped = Array.CreateInstance(a.GetValue(0).GetType(), a.Length - (rows * lCrop.Item4));
-
-                            for (k = 0; k < rows; k++)
+                            // Right
+                            if (lCrop.Item2 > 0)
                             {
-                                Array.Copy(a, k * columns + lCrop.Item4, cropped, k * (columns - lCrop.Item4), columns - lCrop.Item4);
-                            }
+                                Array cropped = Array.CreateInstance(a.GetValue(0).GetType(), a.Length - (rows * lCrop.Item2));
 
-                            a = cropped;
-                            columns -= lCrop.Item4;
-                        }
-
-                        // Now we need to copy the Array "a" into a byte array.  
-                        // But first!  Should we make sure that it's actually a 16-bit array?
-                        int nBytes = a.Length * System.Runtime.InteropServices.Marshal.SizeOf(a.GetValue(0));
-                        result = new byte[nBytes];
-                        Buffer.BlockCopy(a, 0, result, 0, nBytes);
-
-                        Dicom.IO.Buffer.MemoryByteBuffer buffer = new Dicom.IO.Buffer.MemoryByteBuffer(result);
-                        DicomDataset dataset = new DicomDataset();
-
-                        dataset = fileAnon.Dataset.Clone();
-
-                        dataset.AddOrUpdate(DicomTag.Rows, (ushort)rows);
-                        dataset.AddOrUpdate(DicomTag.Columns, (ushort)columns);
-
-                        DicomPixelData newPixelData = DicomPixelData.Create(dataset, true);
-                        newPixelData.BitsStored = header.BitsStored;
-                        newPixelData.SamplesPerPixel = header.SamplesPerPixel;
-                        newPixelData.HighBit = header.HighBit;
-                        newPixelData.PhotometricInterpretation = header.PhotometricInterpretation;
-                        newPixelData.PixelRepresentation = header.PixelRepresentation;
-                        newPixelData.PlanarConfiguration = header.PlanarConfiguration;
-                        newPixelData.Height = (ushort)rows;
-                        newPixelData.Width = (ushort)columns;
-                        newPixelData.AddFrame(buffer);
-
-                        fileAnon = new DicomFile(dataset);
-
-                    }
-
-                    // Only do this if it's a 16bit file that we want a 16bit png for
-                    /*if (b16bit)
-                    {
-                        int nBytes = a.Length * System.Runtime.InteropServices.Marshal.SizeOf(a.GetValue(0));
-                        result = new byte[nBytes];
-
-                        // If we're using a format that's "16bit" but actually less, scale the values?
-                        if (header.BitsStored < header.BitsAllocated)
-                        {
-                            int nShift = header.BitsAllocated - header.BitsStored;
-                            int nFlag = (0x1 << header.BitsStored) - 1;
-                            for (k = 0; k < a.Length; k++)
-                            {
-                                a.SetValue((ushort)(((nFlag - ((ushort)a.GetValue(k) & nFlag)) << nShift) & 0xFFFF), k);
-                            }
-                        }
-
-                        Buffer.BlockCopy(a, 0, result, 0, nBytes);
-
-                        unsafe
-                        {
-                            fixed (byte* ptr = result)
-                            {
-                                using (Bitmap img16 = new Bitmap(columns, rows, 4 * ((2 * columns + 3) / 4), System.Drawing.Imaging.PixelFormat.Format16bppGrayScale, new IntPtr(ptr)))
+                                for (k = 0; k < rows; k++)
                                 {
-                                    SaveBmp(img16, strPath + "/Anonymised/TIF/" + i + ".tif");
-                                    //img16.Save(strPath + "/Anonymised/" + strStudyID + "-16bitGreyscale.png");
+                                    Array.Copy(a, k * columns, cropped, k * (columns - lCrop.Item2), columns - lCrop.Item2);
+                                }
+
+                                a = cropped;
+                                columns -= lCrop.Item2;
+                            }
+
+                            // Bottom
+                            if (lCrop.Item3 > 0)
+                            {
+                                Array cropped = Array.CreateInstance(a.GetValue(0).GetType(), a.Length - (columns * lCrop.Item3));
+                                Array.Copy(a, 0, cropped, 0, cropped.Length);
+                                a = cropped;
+                                rows -= lCrop.Item3;
+                            }
+
+                            // Left
+                            if (lCrop.Item4 > 0)
+                            {
+                                Array cropped = Array.CreateInstance(a.GetValue(0).GetType(), a.Length - (rows * lCrop.Item4));
+
+                                for (k = 0; k < rows; k++)
+                                {
+                                    Array.Copy(a, k * columns + lCrop.Item4, cropped, k * (columns - lCrop.Item4), columns - lCrop.Item4);
+                                }
+
+                                a = cropped;
+                                columns -= lCrop.Item4;
+                            }
+
+                            // Now we need to copy the Array "a" into a byte array.  
+                            // But first!  Should we make sure that it's actually a 16-bit array?
+                            int nBytes = a.Length * System.Runtime.InteropServices.Marshal.SizeOf(a.GetValue(0));
+                            result = new byte[nBytes];
+                            Buffer.BlockCopy(a, 0, result, 0, nBytes);
+
+                            FellowOakDicom.IO.Buffer.MemoryByteBuffer buffer = new FellowOakDicom.IO.Buffer.MemoryByteBuffer(result);
+                            DicomDataset dataset = new DicomDataset();
+
+                            dataset = fileAnon.Dataset.Clone();
+
+                            dataset.AddOrUpdate(DicomTag.Rows, (ushort)rows);
+                            dataset.AddOrUpdate(DicomTag.Columns, (ushort)columns);
+
+                            DicomPixelData newPixelData = DicomPixelData.Create(dataset, true);
+                            newPixelData.BitsStored = header.BitsStored;
+                            newPixelData.SamplesPerPixel = header.SamplesPerPixel;
+                            newPixelData.HighBit = header.HighBit;
+                            newPixelData.PhotometricInterpretation = header.PhotometricInterpretation;
+                            newPixelData.PixelRepresentation = header.PixelRepresentation;
+                            newPixelData.PlanarConfiguration = header.PlanarConfiguration;
+                            newPixelData.Height = (ushort)rows;
+                            newPixelData.Width = (ushort)columns;
+                            newPixelData.AddFrame(buffer);
+
+                            fileAnon = new DicomFile(dataset);
+
+                        }
+
+                        // Only do this if it's a 16bit file that we want a 16bit png for
+                        /*if (b16bit)
+                        {
+                            int nBytes = a.Length * System.Runtime.InteropServices.Marshal.SizeOf(a.GetValue(0));
+                            result = new byte[nBytes];
+
+                            // If we're using a format that's "16bit" but actually less, scale the values?
+                            if (header.BitsStored < header.BitsAllocated)
+                            {
+                                int nShift = header.BitsAllocated - header.BitsStored;
+                                int nFlag = (0x1 << header.BitsStored) - 1;
+                                for (k = 0; k < a.Length; k++)
+                                {
+                                    a.SetValue((ushort)(((nFlag - ((ushort)a.GetValue(k) & nFlag)) << nShift) & 0xFFFF), k);
                                 }
                             }
-                        }
-                    }*/
 
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("Failed to crop image");
-                    System.Diagnostics.Debug.WriteLine(ex.ToString());
-                }
+                            Buffer.BlockCopy(a, 0, result, 0, nBytes);
 
+                            unsafe
+                            {
+                                fixed (byte* ptr = result)
+                                {
+                                    using (Bitmap img16 = new Bitmap(columns, rows, 4 * ((2 * columns + 3) / 4), System.Drawing.Imaging.PixelFormat.Format16bppGrayScale, new IntPtr(ptr)))
+                                    {
+                                        SaveBmp(img16, strPath + "/Anonymised/TIF/" + i + ".tif");
+                                        //img16.Save(strPath + "/Anonymised/" + strStudyID + "-16bitGreyscale.png");
+                                    }
+                                }
+                            }
+                        }*/
+
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Failed to crop image");
+                        System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    }
+                }               
 
                 string sf = strPath + "/Anonymised/DICOM/" + strStudyID + ".dcm";
-
-                int n = 1;
+                
                 try
                 {
 
-                    
-                    fileAnon.Save(sf);   
+                    fileAnon.Save(sf);
 
-
-                    /*while (n < 100)
-                    {
-                        sf = strPath + "/Anonymised/DICOM/" + strOriginalPatientID + "-" + n.ToString("00") + Path.GetFileName(strFile).Substring(0, 2) + ".dcm";
-                        if(!File.Exists(sf))
-                        {
-                            break;
-                        }
-                        n++;
-                    }
-                    //fileAnon.Save(strPath + "/Anonymised/DICOM/" + i + ".dcm");
-                    fileAnon.Save(sf);*/
                 }
                 catch (Exception ex)
                 {
                     // Transmit message back with worker?
-                    lFailed.Add(new Tuple<string, string, string>(strFile, "Header non-standard/corrupt", "\"" + ex.Message.Replace("\"", "\"\"") + "\""));
+                    lFailed.Add(new Tuple<string, string, string>(strFile, "Header non-standard/corrupt", CSVEscape(ex.Message)));
                     System.Diagnostics.Debug.WriteLine(ex.ToString());
 
                     continue;
                 }
 
-                
+
 
 
 
@@ -659,18 +704,19 @@ namespace DicomAnon
                 catch (Exception ex)
                 {
                     // Transmit message back with worker?
-                    lFailed.Add(new Tuple<string, string, string>(strFile, "No image data in the DICOM file", "\"" + ex.Message.Replace("\"", "\"\"") + "\""));
+                    lFailed.Add(new Tuple<string, string, string>(strFile, "No image data in the DICOM file", CSVEscape(ex.Message)));
                     System.Diagnostics.Debug.WriteLine(ex.ToString());
 
                     continue;
                 }
 
-
-
-                // Convert DCM to a 32-bit per pixel (8-bit per each color RGB + 8-bit unused) PNG file
+                // Convert DCM to a 32-bit per pixel (8-bit per each color RGB + 8-bit unused alpha) PNG file
                 try
                 {
-                    Dicom.IO.PinnedIntArray px = img.RenderImage().Pixels;
+                    FellowOakDicom.IO.PinnedIntArray px = img.RenderImage().Pixels;
+
+                    //Bitmap bbb = img.RenderImage().AsClonedBitmap();
+
                     int[] pxi = px.Data;
 
                     byte[] result = new byte[px.ByteSize];
@@ -791,40 +837,30 @@ namespace DicomAnon
             return pixelFormats;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        static bool GetDicomTagString(ref DicomFile file, DicomTag tag, out string value)
         {
-            if (button1.Enabled == false)
+            value = "";
+
+            try
             {
-                return;
+                if(file.Dataset.Contains(tag))
+                {
+                    value = file.Dataset.GetValue<string>(tag, 0);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                
             }
-
-            buttonAnon.Enabled = false;
-            button1.Enabled = false;
-            button2.Enabled = false;
-
-            richTextBoxOut.Clear();
-            richTextBoxOut.AppendText("Getting DICOM data.");
-            progressBar.Minimum = 0;
-            progressBar.Maximum = 100;
-            progressBar.Value = 0;
-
-            if (!Directory.Exists(_strFolder + "\\Database"))
+            catch
             {
-                Directory.CreateDirectory(_strFolder + "\\Database");
+                return false;
             }
-
-
-            richTextBoxOut.AppendText("\nSubfolder 'Database' successfully created.");
-
-            Tuple<string, List<string>> param = new Tuple<string, List<string>>(_strFolder, _lFiles);
-
-            // Start the asynchronous operation.
-            backgroundWorker2.RunWorkerAsync(param);
         }
 
-        // This event handler is where the actual,
-        // potentially time-consuming work is done.
-        private void backgroundWorker2_DoWork(object sender,
+        private void backgroundWorkerGetData_DoWork(object sender,
             DoWorkEventArgs e)
         {
             // Get the BackgroundWorker that raised this event.
@@ -834,10 +870,10 @@ namespace DicomAnon
             // to the Result property of the DoWorkEventArgs
             // object. This is will be available to the 
             // RunWorkerCompleted eventhandler.
-            e.Result = DatabaseFunc((Tuple<string, List<string>>)e.Argument, worker, e);
+            e.Result = GetDataFromDCM((Tuple<string, List<string>>)e.Argument, worker, e);
         }
 
-        string DatabaseFunc(Tuple<string, List<string>> param, BackgroundWorker worker, DoWorkEventArgs e)
+        string GetDataFromDCM(Tuple<string, List<string>> param, BackgroundWorker worker, DoWorkEventArgs e)
         {
             List<string> lFailed = new List<string>();
             string strPath = param.Item1;
@@ -871,15 +907,15 @@ namespace DicomAnon
                     continue;
                 }
 
-                if(file == null)
+                if (file == null)
                 {
                     // Transmit message back with worker?
                     lFailed.Add(strFile);
-                    System.Diagnostics.Debug.WriteLine("File is null?!");                    
+                    System.Diagnostics.Debug.WriteLine("File is null?!");
                     continue;
                 }
 
-                List<string> lRow = new List<string>();                
+                List<string> lRow = new List<string>();
 
                 string strPatientName;
                 string strPatientID;
@@ -912,18 +948,18 @@ namespace DicomAnon
                 }
 
 
-                DicomFile fileAnon = null;                
+                DicomFile fileAnon = null;
                 try
                 {
                     DicomAnonymizer anon = new DicomAnonymizer();
                     fileAnon = anon.Anonymize(file);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     strAnonymizable = "No: " + ex.Message;
                 }
 
-                if(fileAnon != null)
+                if (fileAnon != null)
                 {
                     try
                     {
@@ -931,12 +967,12 @@ namespace DicomAnon
                         var pixelData = PixelDataFactory.Create(header, header.NumberOfFrames - 1);
                         strNonStandardImage = "Standard";
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         strNonStandardImage = "Non-standard: " + ex.Message;
                     }
                 }
-                
+
 
 
                 lRow.Add(strFile);
@@ -969,7 +1005,7 @@ namespace DicomAnon
 
                     hashRow[strColumn] = strValue;
 
-                    if(hashFieldCount.ContainsKey(strColumn))
+                    if (hashFieldCount.ContainsKey(strColumn))
                     {
                         hashFieldCount[strColumn]++;
                     }
@@ -978,7 +1014,7 @@ namespace DicomAnon
                         hashFieldCount[strColumn] = 1;
                     }
                 }
-                lDataRaw.Add(hashRow);                
+                lDataRaw.Add(hashRow);
 
 
                 worker.ReportProgress(i * 100 / files.Count);
@@ -1007,13 +1043,13 @@ namespace DicomAnon
             using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(new FileStream(strPath + "/Database/DatabaseRaw.csv", FileMode.Create, FileAccess.ReadWrite), Encoding.UTF8))
             {
-                
+
                 string strColumns = "FileName,InternalTransferSyntax,Anonymizable,NonStandardImage";
 
 
                 List<string> lFieldsSorted = (from entry in hashFieldCount orderby entry.Value descending select entry.Key).ToList();
 
-                foreach(string strCol in lFieldsSorted)
+                foreach (string strCol in lFieldsSorted)
                 {
                     strColumns += "," + CSVEscape(strCol);
                 }
@@ -1023,9 +1059,9 @@ namespace DicomAnon
                 {
                     string strRow = CSVEscape(dRow["FileName"]) + "," + CSVEscape(dRow["InternalTransferSyntax"]) + "," + CSVEscape(dRow["Anonymizable"]) + "," + CSVEscape(dRow["NonStandardImage"]);
 
-                    foreach(string strCol in lFieldsSorted)
+                    foreach (string strCol in lFieldsSorted)
                     {
-                        if(dRow.ContainsKey(strCol))
+                        if (dRow.ContainsKey(strCol))
                         {
                             strRow += "," + CSVEscape(dRow[strCol]);
                         }
@@ -1051,72 +1087,49 @@ namespace DicomAnon
 
         }
 
-        static bool GetDicomTagString(ref DicomFile file, DicomTag tag, out string value)
-        {
-            value = "";
 
-            try
+        private string CSVEscape(string str)
+        {
+            if(string.IsNullOrWhiteSpace(str))
             {
-                value = file.Dataset.GetValue<string>(tag, 0);
-                return true;
+                return "";
             }
-            catch
-            {
-                return false;
-            }
+
+            return "\"" + str.Replace("\"", "\"\"") + "\"";
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void buttonMakePNGs_Click(object sender, EventArgs e)
         {
-            if (button2.Enabled == false)
+            if (buttonMakePNGs.Enabled == false)
             {
                 return;
             }
 
-            using (FormPatientID frm = new FormPatientID())
+            buttonAnon.Enabled = false;
+            buttonGetData.Enabled = false;
+            buttonMakePNGs.Enabled = false;
+
+            richTextBoxOut.Clear();
+            richTextBoxOut.AppendText("Making PNGs.");
+            progressBar.Minimum = 0;
+            progressBar.Maximum = 100;
+            progressBar.Value = 0;
+
+            if (!Directory.Exists(_strFolder + "\\PNG"))
             {
-                if (frm.ShowDialog(this) == DialogResult.OK)
-                {
-                    buttonAnon.Enabled = false;
-                    button1.Enabled = false;
-                    button2.Enabled = false;
-
-                    richTextBoxOut.Clear();
-                    richTextBoxOut.AppendText("Creating new DICOM files with reassigned PatientIDs using " + frm.strType);
-                    progressBar.Minimum = 0;
-                    progressBar.Maximum = 100;
-                    progressBar.Value = 0;
-
-                    try
-                    {
-                        if (Directory.Exists(_strFolder + "\\Recoded"))
-                        {
-                            richTextBoxOut.AppendText("\nCleaning up existing subfolder 'Recoded'.");
-                            DirectoryInfo di = new DirectoryInfo(_strFolder + "\\Recoded");
-                            di.Delete(true);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        richTextBoxOut.AppendText("\nSubfolder 'Recoded' could not be cleaned up.\n" + ex.Message);
-                        buttonAnon.Enabled = true;
-                        button1.Enabled = true;
-                        button2.Enabled = true;
-                        return;
-                    }
-
-                    Directory.CreateDirectory(_strFolder + "\\Recoded");
-                    richTextBoxOut.AppendText("\nSubfolder 'Recoded' successfully created.");
-
-                    Tuple<string, string, List<string>> param = new Tuple<string, string, List<string>>(_strFolder, frm.strType, _lFiles);
-
-                    // Start the asynchronous operation.
-                    backgroundWorker3.RunWorkerAsync(param);
-                }
+                Directory.CreateDirectory(_strFolder + "\\PNG");
             }
+
+
+            richTextBoxOut.AppendText("\nSubfolder 'PNGs' successfully created.");
+
+            Tuple<string, List<string>> param = new Tuple<string, List<string>>(_strFolder, _lFiles);
+
+            // Start the asynchronous operation.
+            backgroundWorkerMakePNGs.RunWorkerAsync(param);
         }
 
-        private void backgroundWorker3_DoWork(object sender,
+        private void backgroundWorkerMakePNGs_DoWork(object sender,
             DoWorkEventArgs e)
         {
             // Get the BackgroundWorker that raised this event.
@@ -1126,22 +1139,20 @@ namespace DicomAnon
             // to the Result property of the DoWorkEventArgs
             // object. This is will be available to the 
             // RunWorkerCompleted eventhandler.
-            e.Result = WorkerFuncRecodePatientID((Tuple<string, string, List<string>>)e.Argument, worker, e);
+            e.Result = MakePNGs((Tuple<string, List<string>>)e.Argument, worker, e);
         }
 
-        string WorkerFuncRecodePatientID(Tuple<string, string, List<string>> param, BackgroundWorker worker, DoWorkEventArgs e)
+        string MakePNGs(Tuple<string, List<string>> param, BackgroundWorker worker, DoWorkEventArgs e)
         {
             List<string> lFailed = new List<string>();
             string strPath = param.Item1;
-            string strRecodeType = param.Item2;
-            List<string> files = param.Item3;
+            List<string> files = param.Item2;
 
-            //List<Tuple<string, string, string, string>> listDCM = new List<Tuple<string, string, string, string>>();
+            int i = 0;
 
-            int i = 0, nRecodeValue = 1;
+            DateTime dt = DateTime.Now;
 
             int nSuccess = 0;
-
             foreach (string strFile in files)
             {
 
@@ -1159,51 +1170,64 @@ namespace DicomAnon
                     continue;
                 }
 
-                string strOriginalPatientID = "";
+                if (file == null)
+                {
+                    // Transmit message back with worker?
+                    lFailed.Add(strFile);
+                    System.Diagnostics.Debug.WriteLine("File is empty");
+                    continue;
+                }
+
+                DicomImage img;
 
                 try
                 {
-                    strOriginalPatientID = file.Dataset.GetValue<string>(DicomTag.PatientID, 0);
+                    img = new DicomImage(strFile);
+                }
+                catch (Exception ex)
+                {
+                    // Transmit message back with worker?
+                    lFailed.Add(strFile + ": No image data in the DICOM file - " + CSVEscape(ex.Message));
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+
+                    continue;
+                }
+
+                try
+                {
+                    FellowOakDicom.IO.PinnedIntArray px = img.RenderImage().Pixels;
+
+                    //Bitmap bbb = img.RenderImage().AsClonedBitmap();
+
+                    int[] pxi = px.Data;
+
+                    byte[] result = new byte[px.ByteSize];
+                    Buffer.BlockCopy(pxi, 0, result, 0, result.Length);
+
+                    unsafe
+                    {
+                        fixed (byte* ptr = result)
+                        {
+                            using (Bitmap image = new Bitmap(img.Width, img.Height, img.Width * 4,
+                                System.Drawing.Imaging.PixelFormat.Format32bppRgb, new IntPtr(ptr)))
+                            {
+                                //image.Save(strPath + "/Anonymised/PNG/" + i + ".png");
+
+                                string strSaveTo = strPath + "/PNG/" + Path.GetFileNameWithoutExtension(strFile) + ".png";
+                                System.Diagnostics.Debug.WriteLine(strSaveTo);
+                                image.Save(strSaveTo);
+
+                                //image.Save(strPath + "/Anonymised/PNG/" + strOriginalPatientID + "-" + n.ToString("00") + Path.GetFileName(strFile).Substring(0, 2) + ".png");
+                            }
+                        }
+                    }
+
+
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine(ex.ToString());
                 }
-
-
-                DicomTag[] tagsToRemove = { DicomTag.PatientID };
-
-                foreach (DicomTag d in tagsToRemove)
-                {
-                    try
-                    {
-                        file.Dataset.Remove(d);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Error removing element: " + ex.ToString());
-                    }
-                }
-
-                try
-                {
-                    if (strRecodeType == "sequential numbering")
-                    {
-                        file.Dataset.Add(DicomTag.PatientID, nRecodeValue.ToString());
-                        nRecodeValue++;
-                    }
-                    else
-                    {
-                        file.Dataset.Add(DicomTag.PatientID, Path.GetFileNameWithoutExtension(strFile));
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("Error recoding PatientID: " + ex.ToString());
-                }
-
-
-                file.Save(strPath + "/Recoded/" + Path.GetFileName(strFile));
 
 
                 worker.ReportProgress(i * 100 / files.Count);
@@ -1212,22 +1236,17 @@ namespace DicomAnon
                 //Console.WriteLine("Anonymized image " + i + " (of " + nFrames + " frame" + (nFrames == 1 ? "" : "s") + "): " + strFile);
             }
 
-
-            string strRet = nSuccess.ToString() + " images successfully recoded.\nOutput at:\n" + strPath + "\\Recoded";
+            string strRet = nSuccess.ToString() + " images successfully converted to PNG";
             if (lFailed.Count > 0)
             {
-                strRet += "\nThese files failed to recode:";
+                strRet += "\nThese files failed to read:";
                 foreach (string sf in lFailed)
                 {
                     strRet += "\n" + sf;
                 }
             }
             return strRet;
-        }
 
-        private string CSVEscape(string str)
-        {
-            return "\"" + str.Replace("\"", "\"\"") + "\"";
         }
     }
 }

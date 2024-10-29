@@ -34,6 +34,7 @@
             this.labelFolder = new System.Windows.Forms.Label();
             this.checkBoxIncludeSubfolders = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.chkKeepFilenames = new System.Windows.Forms.CheckBox();
             this.labelWarnings = new System.Windows.Forms.Label();
             this.labelImages = new System.Windows.Forms.Label();
             this.buttonAnon = new System.Windows.Forms.Button();
@@ -48,6 +49,8 @@
             this.textCropRight = new System.Windows.Forms.TextBox();
             this.textCropLeft = new System.Windows.Forms.TextBox();
             this.textCropTop = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -65,7 +68,7 @@
             // labelFolder
             // 
             this.labelFolder.AutoSize = true;
-            this.labelFolder.Location = new System.Drawing.Point(6, 45);
+            this.labelFolder.Location = new System.Drawing.Point(6, 69);
             this.labelFolder.Name = "labelFolder";
             this.labelFolder.Size = new System.Drawing.Size(111, 13);
             this.labelFolder.TabIndex = 1;
@@ -86,6 +89,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.chkKeepFilenames);
             this.groupBox1.Controls.Add(this.labelWarnings);
             this.groupBox1.Controls.Add(this.labelImages);
             this.groupBox1.Controls.Add(this.checkBoxIncludeSubfolders);
@@ -98,10 +102,20 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "File Details";
             // 
+            // chkKeepFilenames
+            // 
+            this.chkKeepFilenames.AutoSize = true;
+            this.chkKeepFilenames.Location = new System.Drawing.Point(214, 44);
+            this.chkKeepFilenames.Name = "chkKeepFilenames";
+            this.chkKeepFilenames.Size = new System.Drawing.Size(101, 17);
+            this.chkKeepFilenames.TabIndex = 5;
+            this.chkKeepFilenames.Text = "Keep Filenames";
+            this.chkKeepFilenames.UseVisualStyleBackColor = true;
+            // 
             // labelWarnings
             // 
             this.labelWarnings.AutoSize = true;
-            this.labelWarnings.Location = new System.Drawing.Point(6, 89);
+            this.labelWarnings.Location = new System.Drawing.Point(6, 113);
             this.labelWarnings.Name = "labelWarnings";
             this.labelWarnings.Size = new System.Drawing.Size(55, 13);
             this.labelWarnings.TabIndex = 4;
@@ -110,7 +124,7 @@
             // labelImages
             // 
             this.labelImages.AutoSize = true;
-            this.labelImages.Location = new System.Drawing.Point(6, 67);
+            this.labelImages.Location = new System.Drawing.Point(6, 91);
             this.labelImages.Name = "labelImages";
             this.labelImages.Size = new System.Drawing.Size(139, 13);
             this.labelImages.TabIndex = 3;
@@ -121,7 +135,7 @@
             this.buttonAnon.Enabled = false;
             this.buttonAnon.Location = new System.Drawing.Point(12, 226);
             this.buttonAnon.Name = "buttonAnon";
-            this.buttonAnon.Size = new System.Drawing.Size(480, 37);
+            this.buttonAnon.Size = new System.Drawing.Size(194, 37);
             this.buttonAnon.TabIndex = 4;
             this.buttonAnon.Text = "Anonymise";
             this.buttonAnon.UseVisualStyleBackColor = true;
@@ -155,9 +169,9 @@
             this.groupBox2.Controls.Add(this.textCropLeft);
             this.groupBox2.Controls.Add(this.textCropTop);
             this.groupBox2.Location = new System.Drawing.Point(352, 7);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox2.Size = new System.Drawing.Size(145, 200);
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
@@ -206,7 +220,7 @@
             // textCropBottom
             // 
             this.textCropBottom.Location = new System.Drawing.Point(47, 128);
-            this.textCropBottom.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textCropBottom.Margin = new System.Windows.Forms.Padding(2);
             this.textCropBottom.Name = "textCropBottom";
             this.textCropBottom.Size = new System.Drawing.Size(52, 20);
             this.textCropBottom.TabIndex = 3;
@@ -215,7 +229,7 @@
             // textCropRight
             // 
             this.textCropRight.Location = new System.Drawing.Point(81, 84);
-            this.textCropRight.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textCropRight.Margin = new System.Windows.Forms.Padding(2);
             this.textCropRight.Name = "textCropRight";
             this.textCropRight.Size = new System.Drawing.Size(52, 20);
             this.textCropRight.TabIndex = 2;
@@ -224,7 +238,7 @@
             // textCropLeft
             // 
             this.textCropLeft.Location = new System.Drawing.Point(11, 84);
-            this.textCropLeft.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textCropLeft.Margin = new System.Windows.Forms.Padding(2);
             this.textCropLeft.Name = "textCropLeft";
             this.textCropLeft.Size = new System.Drawing.Size(52, 20);
             this.textCropLeft.TabIndex = 1;
@@ -233,17 +247,41 @@
             // textCropTop
             // 
             this.textCropTop.Location = new System.Drawing.Point(47, 43);
-            this.textCropTop.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textCropTop.Margin = new System.Windows.Forms.Padding(2);
             this.textCropTop.Name = "textCropTop";
             this.textCropTop.Size = new System.Drawing.Size(52, 20);
             this.textCropTop.TabIndex = 0;
             this.textCropTop.Text = "0";
+            // 
+            // button1
+            // 
+            this.button1.Enabled = false;
+            this.button1.Location = new System.Drawing.Point(212, 226);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(131, 37);
+            this.button1.TabIndex = 8;
+            this.button1.Text = "Get Data";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // button2
+            // 
+            this.button2.Enabled = false;
+            this.button2.Location = new System.Drawing.Point(349, 226);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(142, 37);
+            this.button2.TabIndex = 9;
+            this.button2.Text = "Recode PatientID";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(503, 450);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.richTextBoxOut);
             this.Controls.Add(this.progressBar);
@@ -281,6 +319,9 @@
         private System.Windows.Forms.TextBox textCropRight;
         private System.Windows.Forms.TextBox textCropLeft;
         private System.Windows.Forms.TextBox textCropTop;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.CheckBox chkKeepFilenames;
+        private System.Windows.Forms.Button button2;
     }
 }
 

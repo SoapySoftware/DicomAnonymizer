@@ -346,3 +346,5 @@ DICOM/
 packages/
 
 ._README.md
+/DicomAnonConsole
+/pub
